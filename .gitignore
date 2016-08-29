@@ -1,0 +1,9 @@
+# Ignore TWS configuration file as it's expected to be user-supplied
+jts.ini
+# Keep a local copy of the DroidSansMono(Slashed|Dotted) fonts:
+# http://www.cosmix.org/software/files/DroidSansMonoSlashed.zip
+# http://www.cosmix.org/software/files/DroidSansMonoDotted.zip
+# Apache License 2.0, notes at:
+# http://www.cosmix.org/software/#DroidSansDotted
+DroidSansMonoSlashed.zip
+DroidSansMonoDotted.zip
