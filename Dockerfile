@@ -39,11 +39,8 @@ RUN wget https://download2.interactivebrokers.com/installers/tws/$version/tws-$v
     ./tws-$version-linux-$arch.sh -q && \
     rm tws-$version-linux-$arch.sh
 
-# Add a few variables to force anti-aliased font rendering
+# Add a few variables to ensure memory management in a container works right
 RUN echo " \n\
-# Force antialiasing for font rendering \n\
--Dawt.useSystemAAFontSettings=lcd \n\
--Dswing.aatext=true \n\
 # Increase heap allocation and respect container limits \n\
 -XX:+UnlockExperimentalVMOptions \n\
 -XX:+UseCGroupMemoryLimitForHeap \n\
