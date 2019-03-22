@@ -14,7 +14,8 @@ RUN echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula selec
 # Get the container up to date and install additional dependencies
 RUN apt-get -yq update && \
     apt-get -yq dist-upgrade && \ 
-    apt-get -yq install --no-install-recommends libopenjfx-jni firefox-esr -y
+    apt-get -yq install --no-install-recommends libopenjfx-jni firefox-esr -y && \
+    apt-get -yq install --no-install-recommends libcanberra-gtk-module -y
 
 # Create a dedicated user (ib-tws) for the IB TWS application
 RUN useradd -ms /bin/bash ib-tws
