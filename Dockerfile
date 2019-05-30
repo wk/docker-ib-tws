@@ -26,8 +26,8 @@ WORKDIR /home/ib-tws
 # Droid Sans Mono (w/ dotted zero) fonts
 # http://www.cosmix.org/software/
 # Apache License 2.0
-RUN wget http://www.cosmix.org/software/files/DroidSansMonoSlashed.zip && \
-    wget http://www.cosmix.org/software/files/DroidSansMonoDotted.zip && \
+RUN wget https://www.cosmix.org/software/files/DroidSansMonoSlashed.zip && \
+    wget https://www.cosmix.org/software/files/DroidSansMonoDotted.zip && \
     mkdir -p .fonts && \
     unzip DroidSansMonoSlashed.zip -d .fonts/ && \
     unzip DroidSansMonoDotted.zip -d .fonts/ && \
