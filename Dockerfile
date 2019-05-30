@@ -60,4 +60,4 @@ EXPOSE 7496
 EXPOSE 7497
 
 # Start TWS
-ENTRYPOINT ["Jts/tws"]
+CMD ["Jts/tws"]
