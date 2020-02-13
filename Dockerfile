@@ -1,4 +1,4 @@
-FROM openjdk:8-jre-stretch
+FROM openjdk:8-jre
 
 # version can be stable, latest, or beta; arch can be x64 or x86
 ARG version=latest
@@ -45,7 +45,7 @@ RUN echo " \n\
 # Increase heap allocation and respect container limits \n\
 -XX:+UnlockExperimentalVMOptions \n\
 -XX:+UseCGroupMemoryLimitForHeap \n\
-# -Xmx1536m \n\
+-Xmx1536m \n\
 " >> Jts/tws.vmoptions
 
 # Copy over the TWS config so that user-supplied defaults are available at first run
