@@ -1,50 +1,65 @@
-FROM openjdk:8-jre
+FROM ubuntu:xenial 
 
 # version can be stable, latest, or beta; arch can be x64 or x86
 ARG version=latest
 ARG arch=x64
 
-# Add contrib to known sources so we can install optional packages
-RUN echo "deb http://httpredir.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list
-RUN echo "deb http://httpredir.debian.org/debian stretch-backports main contrib non-free" >> /etc/apt/sources.list
+# configure a dedicated user
+ARG RUN_USER=ib-tws
+ARG RUN_USER_UID=1012
+ARG RUN_USER_GID=1012
 
 # Accept license for Microsoft fonts
 RUN echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections
 
-# Get the container up to date and install additional dependencies
+# Get the container up to date
 RUN apt-get -yq update && \
-    apt-get -yq dist-upgrade && \ 
-    apt-get -yq install --no-install-recommends libopenjfx-jni firefox-esr -y && \
-    apt-get -yq install --no-install-recommends libcanberra-gtk-module -y
+    apt-get -yq dist-upgrade
+
+# Install JRE 1.8 dependencies
+RUN apt-get -yq install --no-install-recommends libglib2.0-0 libxrandr2 libxinerama1 \
+    libgl1-mesa-glx libgl1 libgtk2.0-0 libasound2 libc6 libgif7 libjpeg8 libpng12-0 libpulse0 libx11-6 libxext6 \
+    libxtst6 libxslt1.1 libopenjfx-jni libcanberra-gtk-module
+
+# Install avcodec and avformat for multimedia support
+RUN apt-get -yq install --no-install-recommends libavformat-ffmpeg56 libavcodec-ffmpeg56
+
+# Install a browser and launcher
+RUN apt-get -yq install --no-install-recommends firefox xdg-utils
+
+# Install curl and additional fonts
+RUN apt-get -yq install curl unzip ttf-mscorefonts-installer
 
 # Create a dedicated user (ib-tws) for the IB TWS application
-RUN useradd -ms /bin/bash ib-tws
-USER ib-tws
-WORKDIR /home/ib-tws
+RUN useradd -u ${RUN_USER_UID} -ms /bin/bash ${RUN_USER}
+RUN adduser ${RUN_USER} audio
+RUN adduser ${RUN_USER} video
+USER ${RUN_USER_UID}
+WORKDIR /home/${RUN_USER}
 
-# Fetch and install the Droid Sans Mono (w/slashed zero) and 
-# Droid Sans Mono (w/ dotted zero) fonts
-# http://www.cosmix.org/software/
-# Apache License 2.0
-RUN wget https://www.cosmix.org/software/files/DroidSansMonoSlashed.zip && \
-    wget https://www.cosmix.org/software/files/DroidSansMonoDotted.zip && \
-    mkdir -p .fonts && \
-    unzip DroidSansMonoSlashed.zip -d .fonts/ && \
-    unzip DroidSansMonoDotted.zip -d .fonts/ && \
-    fc-cache && \
-    rm DroidSansMonoSlashed.zip DroidSansMonoDotted.zip
+# Bundle the Google Noto Sans Mono Medium font
+# https://www.google.com/get/noto/
+# SIL Open Font License, Version 1.1
+COPY fonts/* /home/${RUN_USER}/.fonts/
+RUN fc-cache
 
 # Fetch and deploy the install4j package IB makes available
-RUN wget https://download2.interactivebrokers.com/installers/tws/$version/tws-$version-linux-$arch.sh && \ 
+RUN curl -s -O https://download2.interactivebrokers.com/installers/tws/$version/tws-$version-linux-$arch.sh && \ 
     chmod +x tws-$version-linux-$arch.sh && \ 
     ./tws-$version-linux-$arch.sh -q && \
     rm tws-$version-linux-$arch.sh
 
-# Add a few variables to ensure memory management in a container works right
+# Add a few variables to ensure memory management in a container works
+# correctly and raise memory limit to 1.5GB.
+# Force anti-aliasing to LCD as JRE relies on xsettings, which are
+# not present inside the container.
 RUN echo " \n\
-# Increase heap allocation and respect container limits \n\
+# Force LCD anti-aliasing \n\
+-Dawt.useSystemAAFontSettings=lcd \n\
+# Respect container memory limits \n\
 -XX:+UnlockExperimentalVMOptions \n\
 -XX:+UseCGroupMemoryLimitForHeap \n\
+# Increase heap allocations \n\
 -Xmx1536m \n\
 " >> Jts/tws.vmoptions
 
