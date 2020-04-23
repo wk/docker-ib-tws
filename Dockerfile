@@ -21,6 +21,14 @@ RUN apt-get -yq install --no-install-recommends libglib2.0-0 libxrandr2 libxiner
     libgl1-mesa-glx libgl1 libgtk2.0-0 libasound2 libc6 libgif7 libjpeg8 libpng12-0 libpulse0 libx11-6 libxext6 \
     libxtst6 libxslt1.1 libopenjfx-jni libcanberra-gtk-module
 
+# Include libopenjfx libraries directory in ld.so configuration
+# This ensures they are available to the i4j-installed JRE
+RUN echo " \n\
+# JavaFX/OpenJFX 8 \n\
+/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64 \n\
+" > /etc/ld.so.conf.d/amd64-libopenjfx.conf
+RUN ldconfig
+
 # Install avcodec and avformat for multimedia support
 RUN apt-get -yq install --no-install-recommends libavformat-ffmpeg56 libavcodec-ffmpeg56
 
